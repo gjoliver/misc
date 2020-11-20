@@ -1,7 +1,7 @@
 var TOTAL_STEPS = 3000;
 var RADIUS_BIG_CIRCLE = 200.0;
-var RADIUS_SMALL_CIRCLE = 90;
-var ARM_LENGTH = 30;
+var RADIUS_SMALL_CIRCLE = 120;
+var ARM_LENGTH = 80;
 var STEP_SIZE = 10.0;
 
 // Derived values.
@@ -10,6 +10,10 @@ var STEP_SIZE = 10.0;
 var CENTER_RADIUS = RADIUS_BIG_CIRCLE - RADIUS_SMALL_CIRCLE;
 // Move points relative to the center of the bigger circle.
 var OFFSET = RADIUS_BIG_CIRCLE;
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 var plotLine = function(ctx, x1, y1, x2, y2) {
     ctx.moveTo(x1, y1);
@@ -20,7 +24,7 @@ var plotLine = function(ctx, x1, y1, x2, y2) {
 // Number of pixels from the pen point to the center of the smaller
 // circle. In pixels [0, 100], since the radius of the smaller circle
 // is 100.
-var plot = function() {
+var plot = async function() {
     var c = document.getElementById("canvas");
     var ctx = c.getContext("2d");
 
@@ -61,5 +65,7 @@ var plot = function() {
         x = new_x;
         y = new_y;
         step += 1
+
+        await sleep(20);
     }
 }
