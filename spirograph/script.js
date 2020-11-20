@@ -1,8 +1,8 @@
 var TOTAL_STEPS = 3000;
-var RADIUS_BIG_CIRCLE = 200.0;    // Pixels
-var RADIUS_SMALL_CIRCLE = 80.0;   // Pixels
-var ARM_LENGTH = 70;               // Pixels
-var STEP_SIZE = 10.0;             // Pixels
+var RADIUS_BIG_CIRCLE = 200.0;
+var RADIUS_SMALL_CIRCLE = 90;
+var ARM_LENGTH = 30;
+var STEP_SIZE = 10.0;
 
 // Derived values.
 // This is the radius of the circle, when the center of the smaller circle
@@ -43,8 +43,8 @@ var plot = function() {
 
         // Now calculate how much pen rotated around the center of the
         // smaller circle.
-        pen_angle += small_circle_angle_step;
-        pen_angle = pen_angle % (2 * Math.PI);
+        pen_angle -= small_circle_angle_step;
+        pen_angle = (pen_angle + 2 * Math.PI) % (2 * Math.PI);
 
         // Pen x, y relative to the center of the smaller circle.
         pen_x = Math.sin(pen_angle) * ARM_LENGTH;
