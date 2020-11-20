@@ -3,6 +3,7 @@ var RADIUS_BIG_CIRCLE = 200.0;
 var RADIUS_SMALL_CIRCLE = 120;
 var ARM_LENGTH = 80;
 var STEP_SIZE = 10.0;
+var SCALE_STEP = 0.0003
 
 // Derived values.
 // This is the radius of the circle, when the center of the smaller circle
@@ -37,6 +38,7 @@ var plot = async function() {
     var step = 0;
     var x = null;
     var y = null;
+    var scale = 1.0
     while (step < TOTAL_STEPS) {
         // First calculate the new center of the smaller circle.
         center_angle += big_circle_angle_step;
@@ -55,8 +57,8 @@ var plot = async function() {
         pen_y = Math.cos(pen_angle) * ARM_LENGTH;
 
         // Final pen position.
-        new_x = center_x + pen_x + OFFSET;
-        new_y = center_y + pen_y + OFFSET;
+        new_x = (center_x + pen_x) * scale + OFFSET;
+        new_y = (center_y + pen_y) * scale + OFFSET;
 
         if (x !== null && y !== null) {
             plotLine(ctx, x, y, new_x, new_y);
@@ -66,6 +68,8 @@ var plot = async function() {
         y = new_y;
         step += 1
 
-        await sleep(20);
+        scale = Math.max(0.0, scale - SCALE_STEP)
+
+        await sleep(10);
     }
 }
