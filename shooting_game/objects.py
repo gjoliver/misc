@@ -1,5 +1,6 @@
 import constants as c
 import math
+import random
 
 class AObject(object):
   def Next(self, canvas):
@@ -13,14 +14,25 @@ class AObject(object):
 
 
 class Bullet(AObject):
+  COLORS = ['red',
+            'orange',
+            'gold',
+            'yellow',
+            'green',
+            'turquoise',
+            'blue',
+            'purple',
+            'black']
+
   def __init__(self, canvas, x, y, slope, speed):
     self.x = x
     self.y = y
     self.slope = slope
     self.speed = speed
+    self.color = random.choice(Bullet.COLORS)
 
     self.id = canvas.create_oval(
-      x - 2, y - 2, x + 2, y + 2, fill='red')
+      x - 2, y - 2, x + 2, y + 2, fill=self.color, outline=self.color)
 
   def Next(self, canvas):
     self.x += math.cos(self.slope) * self.speed
@@ -32,16 +44,21 @@ class Bullet(AObject):
 
 
 class BadGuy(AObject):
-  def __init__(self, canvas, speed):
+  def __init__(self, canvas, speed, health):
     self.x = random.random() * c.WIDTH
     self.y = 0
     self.speed = speed
+    self.health = health
+
+    self.id = canvas.create_rectangle(
+      self.x - 5, self.y - 5, self.x + 5, self.y + 5, fill='black')
 
   def Next(self, canvas):
-    pass
+    self.y += self.speed
+    canvas.coords(self.id, (self.x - 5, self.y - 5, self.x + 5, self.y + 5))
 
   def IsDone(self):
-    return False
+    return self.health <= 0 or self.y >= c.HEIGHT
 
 
 class Bunker(AObject):

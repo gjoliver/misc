@@ -17,7 +17,8 @@ level = 1
 bad_number_defeated = 0
 
 bunker = objects.Bunker(canvas)
-objs = []
+bad_guys = []
+bullets = []
 
 def MakeBadGuy():
   badslope = Slope(c.CENTER_X, c.CENTER_Y, line.x, line.y)
@@ -40,22 +41,37 @@ def Aim(event):
   bunker.Next(canvas, slope)
 
 def Fire(event):
-  objs.append(objects.Bullet(canvas,
-                             c.CENTER_X, c.CENTER_Y,
-                             Slope(c.CENTER_X, c.CENTER_Y, event.x, event.y),
-                             5.0 + 2.0 * (random.random())))
+  bullets.append(objects.Bullet(canvas,
+                                c.CENTER_X, c.CENTER_Y,
+                                Slope(c.CENTER_X, c.CENTER_Y, event.x, event.y),
+                                5.0 + 2.0 * (random.random())))
 
-def Update():
-  global objs
+def MaybeAddBadGuy():
+  global bad_guys
 
-  new_objs = []
-  for o in objs:
+  if random.random() < 0.015:
+    bad_guys.append(objects.BadGuy(canvas, 2, 10))
+
+
+def Next(l):
+  new_l = []
+  for o in l:
     o.Next(canvas)
     if o.IsDone():
       o.Delete(canvas)
     else:
-      new_objs.append(o)
-  objs = new_objs
+      new_l.append(o)
+  return new_l
+
+
+def Update():
+  global bad_guys
+  global bullets
+
+  MaybeAddBadGuy()
+
+  bad_guys = Next(bad_guys)
+  bullets = Next(bullets)
 
   root.after(50, Update)
 
