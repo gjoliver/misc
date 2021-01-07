@@ -64,6 +64,43 @@ def Next(l):
   return new_l
 
 
+def CheckHit():
+  global bad_guys
+  global bullets
+
+  new_bullets = []
+  for t in bullets:
+    hit_something = False
+
+    for g in bad_guys:
+      if g.IsDone():
+        # If this bad guys has already been eliminated. Skip.
+        continue
+
+      if g.Intersect(t):
+        # Mark it that the bullet hit something.
+        hit_something = True
+        # Also mark the bad guy that it has been hit once.
+        g.Hit(canvas)
+        break
+
+    if hit_something:
+      # Bullet goes away after hitting something.
+      t.Delete(canvas)
+    else:
+      new_bullets.append(t)
+  bullets = new_bullets
+
+  # Now, let's delete all the dead bad guys from the screen.
+  new_bad_guys = []
+  for g in bad_guys:
+    if g.IsDone():
+      g.Delete(canvas)
+    else:
+      new_bad_guys.append(g)
+  bad_guys = new_bad_guys
+
+
 def Update():
   global bad_guys
   global bullets
@@ -72,6 +109,8 @@ def Update():
 
   bad_guys = Next(bad_guys)
   bullets = Next(bullets)
+
+  CheckHit()
 
   root.after(50, Update)
 

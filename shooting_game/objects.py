@@ -51,7 +51,7 @@ class BadGuy(AObject):
     self.health = health
 
     self.id = canvas.create_rectangle(
-      self.x - 5, self.y - 5, self.x + 5, self.y + 5, fill='black')
+      self.x - 5, self.y - 5, self.x + 5, self.y + 5, fill='#000')
 
   def Next(self, canvas):
     self.y += self.speed
@@ -59,6 +59,19 @@ class BadGuy(AObject):
 
   def IsDone(self):
     return self.health <= 0 or self.y >= c.HEIGHT
+
+  def Intersect(self, bullet):
+    return (self.x - 5 <= bullet.x and
+            self.x + 5 >= bullet.x and
+            self.y - 5 <= bullet.y and
+            self.y + 5 >= bullet.y)
+
+  def Hit(self, canvas):
+    # Every hit is 5 damage.
+    self.health -= 5
+
+    shade = hex(int(self.health * 15 / 10))[-1] * 3
+    canvas.itemconfigure(self.id, fill='#%s' % shade)
 
 
 class Bunker(AObject):
