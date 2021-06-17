@@ -13,12 +13,17 @@ canvas = tkinter.Canvas(root,
                         width=c.WIDTH)
 canvas.pack()
 
-level = 1
-bad_number_defeated = 0
 
+level = 1
+bad_guys_defeated = 0
+damage = 0
 bunker = objects.Bunker(canvas)
 bad_guys = []
 bullets = []
+
+level_label = canvas.create_text(30, 10, text='LV: %d' % level)
+defeated_label = canvas.create_text(
+  100, 10, text='Defeated: %d' % bad_guys_defeated)
 
 def MakeBadGuy():
   badslope = Slope(c.CENTER_X, c.CENTER_Y, line.x, line.y)
@@ -44,7 +49,8 @@ def Fire(event):
   bullets.append(objects.Bullet(canvas,
                                 c.CENTER_X, c.CENTER_Y,
                                 Slope(c.CENTER_X, c.CENTER_Y, event.x, event.y),
-                                5.0 + 2.0 * (random.random())))
+                                5.0 + 2.0 * (random.random()),
+                                level, damage))
 
 def MaybeAddBadGuy():
   global bad_guys
@@ -67,6 +73,10 @@ def Next(l):
 def CheckHit():
   global bad_guys
   global bullets
+  global level
+  global level_label
+  global bad_guys_defeated
+  global defeated_label
 
   new_bullets = []
   for t in bullets:
@@ -95,7 +105,16 @@ def CheckHit():
   new_bad_guys = []
   for g in bad_guys:
     if g.IsDone():
+      # One bad guy gone.
       g.Delete(canvas)
+
+      bad_guys_defeated += 1
+      canvas.itemconfigure(defeated_label,
+                           text='Defeated: %d' % bad_guys_defeated)
+
+      if bad_guys_defeated >= 2 ** (level + 1):
+        level += 1
+        canvas.itemconfigure(level_label, text='LV: %d' % level)
     else:
       new_bad_guys.append(g)
   bad_guys = new_bad_guys

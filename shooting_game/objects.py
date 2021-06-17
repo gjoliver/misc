@@ -14,7 +14,9 @@ class AObject(object):
 
 
 class Bullet(AObject):
+
   COLORS = ['red',
+            'red',
             'orange',
             'gold',
             'yellow',
@@ -24,12 +26,26 @@ class Bullet(AObject):
             'purple',
             'black']
 
-  def __init__(self, canvas, x, y, slope, speed):
+  DAMAGE = [0,
+            1,
+            4,
+            5,
+            10,
+            20,
+            30,
+            40,
+            50,
+            100]
+
+  def __init__(self, canvas, x, y, slope, speed, level, damage):
     self.x = x
     self.y = y
     self.slope = slope
     self.speed = speed
-    self.color = random.choice(Bullet.COLORS)
+    self.color = Bullet.COLORS[level]
+    self.level = level
+    damage == Bullet.DAMAGE[level]
+    self.damage = damage
 
     self.id = canvas.create_oval(
       x - 2, y - 2, x + 2, y + 2, fill=self.color, outline=self.color)
@@ -67,8 +83,8 @@ class BadGuy(AObject):
             self.y + 5 >= bullet.y)
 
   def Hit(self, canvas):
-    # Every hit is 5 damage.
-    self.health -= 5
+    # Every hit is different damage.
+    self.health -= Bullet.DAMAGE
 
     shade = hex(int(self.health * 15 / 10))[-1] * 3
     canvas.itemconfigure(self.id, fill='#%s' % shade)
