@@ -28,7 +28,17 @@ canvas.pack()
 
 line(canvas)
 
+canvas.create_text(787.5, 10, text = 'recent colors')
+
+canvas.create_rectangle(375, 20, 425, 40, activefill = 'firebrick1', fill = 'gray75')
+
+canvas.create_text(400, 10, text = 'erase all')
+
 buttondown = False
+
+eraseall = False
+
+recentupdate = False
 
 color = 'gray50'
 
@@ -40,6 +50,14 @@ def UpdateUniverse():
 
 def dotdown(event):
   global buttondown
+  global recentupdate
+  global eraseall
+
+  if event.y > 4 and event.y < 31 and event.x > 724 and event.x < 875:
+    recentupdate = True
+
+  if event.y > 19 and event.y < 41 and event.x > 374 and event.x < 426:
+    eraseall = True
 
   if event.y < 26 and event.y > 19 and event.x < 701 and event.x > 499:
     buttondown = True
@@ -82,20 +100,64 @@ for row in range(num_rows):
 def draw(event):
   global color
   global pixel_size
+  global num_rows
+  global num_cols
   eventrow = round((event.x - event.x % pixel_size) / pixel_size)
   eventcol = round((event.y - 50 - event.y % pixel_size) / pixel_size)
-  print(eventrow, eventcol, len(rowname), len(rowname[eventrow]))
+
   # Here we just update color on the corresponding "pixel"
   canvas.itemconfig(rowname[eventcol][eventrow], fill = str(color))
 
 
+def erase():
+  global eraseall
+  if eraseall == True:
+    for a in range(num_rows):
+      for b in range(num_cols):
+        canvas.itemconfig(rowname[a][b], fill = 'white')
+
+recent_colors = ['gray50', 'gray50', 'gray50', 'gray50', 'gray50']
+
 def dotup(event):
   global buttondown
-  buttondown = False
+  global eraseall
 
-  if event.y > 50:
+  if eraseall == True:
+    erase()
+    eraseall = False
+
+  if buttondown == True:
+    recent_colors[4] = recent_colors[3]
+    recent_colors[3] = recent_colors[2]
+    recent_colors[2] = recent_colors[1]
+    recent_colors[1] = recent_colors[0]
+    recent_colors[0] = color
+
+  if buttondown == True:
+    drawRecentColors()
+
+  if event.y > 50 and not buttondown == True:
     draw(event)
 
+  buttondown = False
+
+recent_color_rect = []
+offset = 0
+for thing in range(5):
+  thing = round(offset / 25)
+  id = canvas.create_rectangle(725 + offset, 20, 750 + offset, 45,
+                               fill = recent_colors[thing],
+                               outline = recent_colors[thing])
+  offset += 25
+  recent_color_rect.append(id)
+
+#if recent_colors == True:
+  #rect_num = round((event.x - event.x % 25 - 725) / 25)
+  #color = recent_colors[rect_num]
+
+def drawRecentColors():
+  for v in range(5):
+    canvas.itemconfig(recent_color_rect[v], fill = recent_colors[v], outline = recent_colors[v])
 
 canvas.focus_set()
 canvas.bind('<Motion>', dotmove)
