@@ -34,48 +34,6 @@ canvas.create_rectangle(375, 20, 425, 40, activefill = 'firebrick1', fill = 'gra
 
 canvas.create_text(400, 10, text = 'erase all')
 
-buttondown = False
-
-eraseall = False
-
-recentupdate = False
-
-color = 'gray50'
-
-oval_id = canvas.create_oval(600 - 5, 17.5, 600 + 5, 27.5, outline = 'gray50', fill = 'gray50')
-canvas.lift(oval_id)
-
-def UpdateUniverse():
-  root.after(50, UpdateUniverse)
-
-def dotdown(event):
-  global buttondown
-  global recentupdate
-  global eraseall
-
-  if event.y > 4 and event.y < 31 and event.x > 724 and event.x < 875:
-    recentupdate = True
-
-  if event.y > 19 and event.y < 41 and event.x > 374 and event.x < 426:
-    eraseall = True
-
-  if event.y < 26 and event.y > 19 and event.x < 701 and event.x > 499:
-    buttondown = True
-
-def dotmove(event):
-  global buttondown
-  global color
-
-  if buttondown == True:
-    realx = event.x
-    if event.x > 700:
-      realx = 700
-    if event.x < 500:
-      realx = 500
-    canvas.coords(oval_id, realx - 5, 17.5, realx + 5, 27.5)
-    color = "gray" + str(round((realx - 500) / 2))
-    canvas.itemconfig(oval_id, outline = str(color), fill=str(color))
-
 pixel_size = 25
 
 
@@ -95,6 +53,70 @@ for row in range(num_rows):
 
     columnname.append(id)
   rowname.append(columnname)
+
+buttondown = False
+
+eraseall = False
+
+recentupdate = False
+
+pressed = False
+
+rect_num = 0
+
+color = 'gray50'
+
+# slider dot
+oval_id = canvas.create_oval(600 - 5, 17.5, 600 + 5, 27.5, outline = 'gray50', fill = 'gray50')
+canvas.lift(oval_id)
+
+def UpdateUniverse():
+  root.after(50, UpdateUniverse)
+
+# when the mouse is down
+def dotdown(event):
+  global buttondown
+  global recentupdate
+  global eraseall
+  global pressed
+  global HEIGHT
+  global WIDTH
+  global rect_num
+
+  # if the mouse is in the screen
+  if event.y < HEIGHT and event.y > 0 and event.x > 0 and event.x < WIDTH:
+    # if the mouse is clicking on the recent colors
+    if event.y > 4 and event.y < 31 and event.x > 724 and event.x < 876:
+      recentupdate = True
+
+      rect_num = round((event.x - event.x % 25 - 725) / 25)
+
+    if event.y > 19 and event.y < 41 and event.x > 374 and event.x < 426:
+      eraseall = True
+
+    if event.y < 26 and event.y > 19 and event.x < 701 and event.x > 499:
+      buttondown = True
+
+    if event.y > 50:
+      pressed = True
+
+def dotmove(event):
+  global buttondown
+  global color
+
+# the color changer
+  if buttondown == True:
+    realx = event.x
+    if event.x > 700:
+      realx = 700
+    if event.x < 500:
+      realx = 500
+    canvas.coords(oval_id, realx - 5, 17.5, realx + 5, 27.5)
+    color = "gray" + str(round((realx - 500) / 2))
+    canvas.itemconfig(oval_id, outline = str(color), fill=str(color))
+# the drawer
+  if event.y > 50 and buttondown == False and pressed == True:
+     draw(event)
 
 
 def draw(event):
@@ -121,6 +143,11 @@ recent_colors = ['gray50', 'gray50', 'gray50', 'gray50', 'gray50']
 def dotup(event):
   global buttondown
   global eraseall
+  global pressed
+  global recentupdate
+  global rect_num
+  global color
+
 
   if eraseall == True:
     erase()
@@ -134,12 +161,14 @@ def dotup(event):
     recent_colors[0] = color
 
   if buttondown == True:
-    drawRecentColors()
+    drawRecentColors(rect_num, color, recentupdate)
 
   if event.y > 50 and not buttondown == True:
     draw(event)
 
   buttondown = False
+
+  pressed = False
 
 recent_color_rect = []
 offset = 0
@@ -151,13 +180,16 @@ for thing in range(5):
   offset += 25
   recent_color_rect.append(id)
 
-#if recent_colors == True:
-  #rect_num = round((event.x - event.x % 25 - 725) / 25)
-  #color = recent_colors[rect_num]
 
-def drawRecentColors():
+def drawRecentColors(rect_num, color, recent_update):
   for v in range(5):
     canvas.itemconfig(recent_color_rect[v], fill = recent_colors[v], outline = recent_colors[v])
+
+  if recentupdate == True:
+    print(rect_num)
+    canvas.itemconfig(oval_id, fill = recent_colors[rect_num], outline = recent_colors[rect_num])
+    color = recent_colors[rect_num]
+    recentupdate = False
 
 canvas.focus_set()
 canvas.bind('<Motion>', dotmove)
