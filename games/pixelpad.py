@@ -37,7 +37,7 @@ canvas.create_text(400, 10, text = 'erase all')
 pixel_size = 25
 
 
-num_rows = round((HEIGHT - 50) / pixel_size)
+num_rows = round(HEIGHT - 50 / pixel_size)
 num_cols = round(WIDTH / pixel_size)
 
 rowname = []
@@ -70,6 +70,41 @@ color = 'gray50'
 oval_id = canvas.create_oval(600 - 5, 17.5, 600 + 5, 27.5, outline = 'gray50', fill = 'gray50')
 canvas.lift(oval_id)
 
+#x is 0, y is between 1 & 16
+x = 0
+y = 13
+
+oval_id2 = canvas.create_oval((y - 1) * pixel_size + 37.5 + WIDTH/2,
+                              (y - 1) * pixel_size + 37.5 + HEIGHT/2,
+                              WIDTH/2 - ((y - 1) * pixel_size + 12.5),
+                              HEIGHT/2 - ((y - 1) *  pixel_size + 12.5),
+                              outline = 'turquoise',
+                              fill = None,
+                              activewidth = 25,
+                              width = 3)
+canvas.lift(oval_id2)
+
+def DrawDot(x,y,color11):
+  canvas.itemconfig(rowname[round((HEIGHT - 100) / 2 / pixel_size + y)][round(WIDTH / 2 / pixel_size + x)], fill = color11)
+
+while x <= y:
+  print(x, y)
+
+  DrawDot(x,y,"green")
+  DrawDot(x,-y,"red")
+  DrawDot(-x,y,"turquoise")
+  DrawDot(-x,-y,"pink")
+  DrawDot(y,x,"yellow")
+  DrawDot(y,-x,"orange")
+  DrawDot(-y,x,"blue")
+  DrawDot(-y,-x,"purple")
+
+  if math.pow(y,2) - (2 * x) - 1 < 0.0:
+    break
+
+  y = math.sqrt(math.pow(y,2) - (2 * x) - 1)
+  x += 1
+
 def UpdateUniverse():
   root.after(50, UpdateUniverse)
 
@@ -82,14 +117,21 @@ def dotdown(event):
   global HEIGHT
   global WIDTH
   global rect_num
+  global oval_id
+  global color
 
   # if the mouse is in the screen
   if event.y < HEIGHT and event.y > 0 and event.x > 0 and event.x < WIDTH:
     # if the mouse is clicking on the recent colors
-    if event.y > 4 and event.y < 31 and event.x > 724 and event.x < 876:
+    if event.y > 19 and event.y < 46 and event.x > 724 and event.x < 876:
       recentupdate = True
 
-      rect_num = round((event.x - event.x % 25 - 725) / 25)
+      rect_num = math.floor((event.x - 725) / 25)
+
+      color = recent_colors[rect_num]
+      drawRecentColors(color, recentupdate)
+      blah = int(color[4:])
+      canvas.coords(oval_id, 495 + blah * 2, 17.5, 505 + blah * 2, 27.5)
 
     if event.y > 19 and event.y < 41 and event.x > 374 and event.x < 426:
       eraseall = True
@@ -124,8 +166,8 @@ def draw(event):
   global pixel_size
   global num_rows
   global num_cols
-  eventrow = round((event.x - event.x % pixel_size) / pixel_size)
-  eventcol = round((event.y - 50 - event.y % pixel_size) / pixel_size)
+  eventrow = round((event.x - event.x % pixel_size) / pixel_size) % num_cols
+  eventcol = round((event.y - 50 - event.y % pixel_size) / pixel_size) % num_rows
 
   # Here we just update color on the corresponding "pixel"
   canvas.itemconfig(rowname[eventcol][eventrow], fill = str(color))
@@ -161,7 +203,7 @@ def dotup(event):
     recent_colors[0] = color
 
   if buttondown == True:
-    drawRecentColors(rect_num, color, recentupdate)
+    drawRecentColors(color, recentupdate)
 
   if event.y > 50 and not buttondown == True:
     draw(event)
@@ -181,15 +223,26 @@ for thing in range(5):
   recent_color_rect.append(id)
 
 
-def drawRecentColors(rect_num, color, recent_update):
-  for v in range(5):
-    canvas.itemconfig(recent_color_rect[v], fill = recent_colors[v], outline = recent_colors[v])
+def drawRecentColors(color, recent_update):
+  global recentupdate
 
   if recentupdate == True:
-    print(rect_num)
-    canvas.itemconfig(oval_id, fill = recent_colors[rect_num], outline = recent_colors[rect_num])
-    color = recent_colors[rect_num]
+    canvas.itemconfig(oval_id,
+                      fill = color,
+                      outline = color)
+    templist = []
+    for w in range(rect_num):
+      templist.append(recent_colors[w])
+    canvas.itemconfig(recent_color_rect[0], fill = recent_colors[rect_num], outline = recent_colors[rect_num])
+    for x in range(rect_num - 1):
+      canvas.itemconfig(recent_color_rect[x+1], fill = templist[x], outline = templist[x])
     recentupdate = False
+
+  if recentupdate == False:
+    for v in range(5):
+      canvas.itemconfig(recent_color_rect[v],
+                        fill = recent_colors[v],
+                        outline = recent_colors[v])
 
 canvas.focus_set()
 canvas.bind('<Motion>', dotmove)
